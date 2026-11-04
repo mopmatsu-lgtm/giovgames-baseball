@@ -1,0 +1,6 @@
+{
+  "name": "ベースボールリーグWeb",
+  "description": "名作ブラウザ野球ゲームライクな本格球団育成・ペナントシミュレーション。オーダー編成、熱い1打席実況速報、ドラフト、強化で日本一を目指そう！",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
