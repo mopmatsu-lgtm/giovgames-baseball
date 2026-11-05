@@ -28,6 +28,7 @@ import { ActivityLogModal } from './components/ActivityLogModal';
 import { PostseasonView } from './components/PostseasonView';
 import { PrivacyPolicyModal } from './components/PrivacyPolicyModal';
 import { ContactModal } from './components/ContactModal';
+import { AboutAuthorModal } from './components/AboutAuthorModal';
 import { reconcilePostseasonRewards } from './utils/postseasonManager';
 
 export default function App() {
@@ -44,6 +45,7 @@ export default function App() {
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
   const [showContact, setShowContact] = useState(false);
+  const [showAuthor, setShowAuthor] = useState(false);
 
   // Auto-save sync: リーグ状態の変化を即座に永続化
   useEffect(() => {
@@ -204,8 +206,16 @@ export default function App() {
           />
         )}
 
-        {/* Subtle Footer with Privacy Policy & Contact Form links */}
-        <footer className="mt-8 mb-4 pt-3 border-t border-slate-900/60 text-center text-[11px] text-slate-500 space-x-3">
+        {/* Subtle Footer with Operator Info, Privacy Policy & Contact Form links */}
+        <footer className="mt-8 mb-4 pt-3 border-t border-slate-900/60 text-center text-[11px] text-slate-500 space-x-2.5">
+          <button
+            type="button"
+            onClick={() => setShowAuthor(true)}
+            className="hover:text-slate-400 transition-colors underline decoration-slate-800 underline-offset-2"
+          >
+            運営者情報
+          </button>
+          <span>•</span>
           <button
             type="button"
             onClick={() => setShowPrivacyPolicy(true)}
@@ -272,7 +282,17 @@ export default function App() {
         </div>
       )}
 
-      {/* 6. Privacy Policy Modal */}
+      {/* 6. Operator Info Modal */}
+      <AboutAuthorModal
+        isOpen={showAuthor}
+        onClose={() => setShowAuthor(false)}
+        onOpenContact={() => {
+          setShowAuthor(false);
+          setShowContact(true);
+        }}
+      />
+
+      {/* 7. Privacy Policy Modal */}
       <PrivacyPolicyModal
         isOpen={showPrivacyPolicy}
         onClose={() => setShowPrivacyPolicy(false)}

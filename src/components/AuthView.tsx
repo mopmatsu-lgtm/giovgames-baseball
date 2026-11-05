@@ -4,6 +4,7 @@ import { Shield, Sparkles, LogIn, UserPlus, Zap, Crown } from 'lucide-react';
 import { isSecretSeibuCommand } from '../utils/secretCommand';
 import { PrivacyPolicyModal } from './PrivacyPolicyModal';
 import { ContactModal } from './ContactModal';
+import { AboutAuthorModal } from './AboutAuthorModal';
 
 interface Props {
   onRegister: (account: UserAccount) => void;
@@ -17,6 +18,7 @@ export const AuthView: React.FC<Props> = ({ onRegister, onLogin }) => {
   const [password, setPassword] = useState('');
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showContact, setShowContact] = useState(false);
+  const [showAuthor, setShowAuthor] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const isSecretMatch = isSecretSeibuCommand(teamName, password);
@@ -211,8 +213,16 @@ export const AuthView: React.FC<Props> = ({ onRegister, onLogin }) => {
         </div>
       </div>
 
-      {/* Subtle Footer with Privacy Policy & Contact Form links */}
-      <footer className="mt-4 text-center text-[11px] text-slate-500 space-x-3">
+      {/* Subtle Footer with Operator Info, Privacy Policy & Contact Form links */}
+      <footer className="mt-4 text-center text-[11px] text-slate-500 space-x-2.5">
+        <button
+          type="button"
+          onClick={() => setShowAuthor(true)}
+          className="hover:text-slate-400 transition-colors underline decoration-slate-800 underline-offset-2"
+        >
+          運営者情報
+        </button>
+        <span>•</span>
         <button
           type="button"
           onClick={() => setShowPrivacy(true)}
@@ -229,6 +239,16 @@ export const AuthView: React.FC<Props> = ({ onRegister, onLogin }) => {
           お問い合わせ
         </button>
       </footer>
+
+      {/* Operator Info Modal */}
+      <AboutAuthorModal
+        isOpen={showAuthor}
+        onClose={() => setShowAuthor(false)}
+        onOpenContact={() => {
+          setShowAuthor(false);
+          setShowContact(true);
+        }}
+      />
 
       {/* Privacy Policy Modal */}
       <PrivacyPolicyModal
