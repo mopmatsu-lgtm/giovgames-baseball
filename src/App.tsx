@@ -26,6 +26,8 @@ import { HallOfFameView } from './components/HallOfFameView';
 import { PlayerModal } from './components/PlayerModal';
 import { ActivityLogModal } from './components/ActivityLogModal';
 import { PostseasonView } from './components/PostseasonView';
+import { PrivacyPolicyModal } from './components/PrivacyPolicyModal';
+import { ContactModal } from './components/ContactModal';
 import { reconcilePostseasonRewards } from './utils/postseasonManager';
 
 export default function App() {
@@ -40,6 +42,8 @@ export default function App() {
   const [soundEnabled, setSoundEnabled] = useState<boolean>(soundFx.isEnabled());
   const [showActivityLog, setShowActivityLog] = useState(false);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
+  const [showContact, setShowContact] = useState(false);
 
   // Auto-save sync: リーグ状態の変化を即座に永続化
   useEffect(() => {
@@ -199,6 +203,25 @@ export default function App() {
             onSelectPlayer={setSelectedPlayer}
           />
         )}
+
+        {/* Subtle Footer with Privacy Policy & Contact Form links */}
+        <footer className="mt-8 mb-4 pt-3 border-t border-slate-900/60 text-center text-[11px] text-slate-500 space-x-3">
+          <button
+            type="button"
+            onClick={() => setShowPrivacyPolicy(true)}
+            className="hover:text-slate-400 transition-colors underline decoration-slate-800 underline-offset-2"
+          >
+            プライバシーポリシー
+          </button>
+          <span>•</span>
+          <button
+            type="button"
+            onClick={() => setShowContact(true)}
+            className="hover:text-slate-400 transition-colors underline decoration-slate-800 underline-offset-2"
+          >
+            お問い合わせ
+          </button>
+        </footer>
       </main>
 
       {/* 3. Player Card Modal */}
@@ -249,7 +272,23 @@ export default function App() {
         </div>
       )}
 
-      {/* 6. Bottom Navigation Bar (iPhone / Smartphone optimized) */}
+      {/* 6. Privacy Policy Modal */}
+      <PrivacyPolicyModal
+        isOpen={showPrivacyPolicy}
+        onClose={() => setShowPrivacyPolicy(false)}
+        onOpenContact={() => {
+          setShowPrivacyPolicy(false);
+          setShowContact(true);
+        }}
+      />
+
+      {/* 7. Contact Modal */}
+      <ContactModal
+        isOpen={showContact}
+        onClose={() => setShowContact(false)}
+      />
+
+      {/* 8. Bottom Navigation Bar (iPhone / Smartphone optimized) */}
       <BottomNav
         activeTab={activeTab}
         onChangeTab={setActiveTab}

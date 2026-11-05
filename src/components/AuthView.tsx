@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { UserAccount } from '../types/baseball';
 import { Shield, Sparkles, LogIn, UserPlus, Zap, Crown } from 'lucide-react';
 import { isSecretSeibuCommand } from '../utils/secretCommand';
+import { PrivacyPolicyModal } from './PrivacyPolicyModal';
+import { ContactModal } from './ContactModal';
 
 interface Props {
   onRegister: (account: UserAccount) => void;
@@ -13,6 +15,8 @@ export const AuthView: React.FC<Props> = ({ onRegister, onLogin }) => {
   const [teamName, setTeamName] = useState('');
   const [managerName, setManagerName] = useState('');
   const [password, setPassword] = useState('');
+  const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showContact, setShowContact] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const isSecretMatch = isSecretSeibuCommand(teamName, password);
@@ -206,6 +210,41 @@ export const AuthView: React.FC<Props> = ({ onRegister, onLogin }) => {
           </button>
         </div>
       </div>
+
+      {/* Subtle Footer with Privacy Policy & Contact Form links */}
+      <footer className="mt-4 text-center text-[11px] text-slate-500 space-x-3">
+        <button
+          type="button"
+          onClick={() => setShowPrivacy(true)}
+          className="hover:text-slate-400 transition-colors underline decoration-slate-800 underline-offset-2"
+        >
+          プライバシーポリシー
+        </button>
+        <span>•</span>
+        <button
+          type="button"
+          onClick={() => setShowContact(true)}
+          className="hover:text-slate-400 transition-colors underline decoration-slate-800 underline-offset-2"
+        >
+          お問い合わせ
+        </button>
+      </footer>
+
+      {/* Privacy Policy Modal */}
+      <PrivacyPolicyModal
+        isOpen={showPrivacy}
+        onClose={() => setShowPrivacy(false)}
+        onOpenContact={() => {
+          setShowPrivacy(false);
+          setShowContact(true);
+        }}
+      />
+
+      {/* Contact Modal */}
+      <ContactModal
+        isOpen={showContact}
+        onClose={() => setShowContact(false)}
+      />
     </div>
   );
 };
