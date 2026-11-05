@@ -1,5 +1,6 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
+import fs from 'fs';
 import path from 'path';
 import {defineConfig} from 'vite';
 
@@ -10,7 +11,21 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url));
 export default defineConfig(() => {
   return {
     base: '/',
-    plugins: [react(), tailwindcss()],
+    plugins: [
+      react(),
+      tailwindcss(),
+      {
+        name: 'generate-spa-fallback',
+        closeBundle() {
+          const distDir = path.resolve(__dirname, 'dist');
+          const indexPath = path.resolve(distDir, 'index.html');
+          const fallbackPath = path.resolve(distDir, '200.html');
+          if (fs.existsSync(indexPath)) {
+            fs.copyFileSync(indexPath, fallbackPath);
+          }
+        },
+      },
+    ],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
