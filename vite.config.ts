@@ -9,11 +9,17 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
 export default defineConfig(() => {
   return {
+    base: '/',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, '.'),
       },
+    },
+    build: {
+      outDir: 'dist',
+      assetsDir: 'assets',
+      sourcemap: false,
     },
     server: {
       port: 3000,
