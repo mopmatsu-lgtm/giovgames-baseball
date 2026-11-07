@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Video, Sparkles, CheckCircle, X, Volume2, VolumeX, Shield, Play } from 'lucide-react';
+import { Sparkles, CheckCircle, X, Play } from 'lucide-react';
 import { soundFx } from '../utils/audio';
 
 interface AdVideoModalProps {
@@ -8,24 +8,50 @@ interface AdVideoModalProps {
   onAdCompleted: () => void;
 }
 
-/**
- * 将来の広告動画（Google AdMob, Unity Ads, Google IMA SDK, VAST/VPAID等）を
- * スムーズに統合できるよう設計されたリワード動画広告プレイヤー。
- *
- * 現在はプレビュー・検証用の高精細シミュレーション動画プレイヤーとして動作し、
- * 動画視聴が完了するとクールダウンを全回復して即座に試合を開始できます。
- */
+interface SponsorAd {
+  id: string;
+  link: string;
+  imageSrc: string;
+  width: number;
+  height: number;
+  alt: string;
+  beaconSrc: string;
+}
+
+const SPONSOR_ADS: SponsorAd[] = [
+  {
+    id: 'a8-sponsor-1',
+    link: 'https://px.a8.net/svt/ejp?a8mat=4BGFJF+FHAIA+1WP2+6IHCX',
+    imageSrc: 'https://www29.a8.net/svt/bgt?aid=261107115026&wid=001&eno=01&mid=s00000008903001094000&mc=1',
+    width: 180,
+    height: 180,
+    alt: 'スポンサー広告',
+    beaconSrc: 'https://www13.a8.net/0.gif?a8mat=4BGFJF+FHAIA+1WP2+6IHCX',
+  },
+  {
+    id: 'a8-rakuten-2',
+    link: 'https://rpx.a8.net/svt/ejp?a8mat=4BGFJF+EVUWI+2HOM+656YP&rakuten=y&a8ejpredirect=http%3A%2F%2Fhb.afl.rakuten.co.jp%2Fhgc%2F0ea62065.34400275.0ea62066.204f04c0%2Fa26110779512_4BGFJF_EVUWI_2HOM_656YP%3Fpc%3Dhttp%253A%252F%252Fwww.rakuten.co.jp%252F%26m%3Dhttp%253A%252F%252Fm.rakuten.co.jp%252F',
+    imageSrc: 'https://hbb.afl.rakuten.co.jp/hsb/0ec09ba3.bc2429d5.0eb4bbaa.95151395/',
+    width: 120,
+    height: 120,
+    alt: '楽天市場',
+    beaconSrc: 'https://www16.a8.net/0.gif?a8mat=4BGFJF+EVUWI+2HOM+656YP',
+  },
+];
+
+const STORAGE_LAST_AD_KEY = 'gekipawa_last_ad_index';
+
 export const AdVideoModal: React.FC<AdVideoModalProps> = ({
   isOpen,
   onClose,
   onAdCompleted,
 }) => {
-  // 広告視聴秒数（デフォルト: 5秒）
+  // 広告閲覧秒数（デフォルト: 5秒）
   const AD_DURATION = 5;
   const [timeLeft, setTimeLeft] = useState(AD_DURATION);
   const [isCompleted, setIsCompleted] = useState(false);
-  const [isMuted, setIsMuted] = useState(false);
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [adIndex, setAdIndex] = useState(0);
 
   useEffect(() => {
     if (!isOpen) {
@@ -35,18 +61,21 @@ export const AdVideoModal: React.FC<AdVideoModalProps> = ({
       return;
     }
 
-    // ============================================================
-    // 【将来の動画広告SDK連携用エントリーポイント】
-    // 将来 Google AdMob や Unity Ads, Google IMA SDK を導入する際は
-    // ここで SDK の `showRewardedVideo()` 等を呼び出してください。
-    // 例:
-    // if (window.admobVideoSdk) {
-    //   window.admobVideoSdk.show({
-    //     onRewarded: () => { setIsCompleted(true); onAdCompleted(); },
-    //     onError: () => { onClose(); }
-    //   });
-    // }
-    // ============================================================
+    // モーダルを開くたびに2つの広告を交互に切り替え（前回と違う広告を表示）
+    let nextIndex = 0;
+    try {
+      const raw = localStorage.getItem(STORAGE_LAST_AD_KEY);
+      if (raw !== null) {
+        const last = parseInt(raw, 10);
+        nextIndex = (last + 1) % SPONSOR_ADS.length;
+      } else {
+        nextIndex = Math.random() < 0.5 ? 0 : 1;
+      }
+      localStorage.setItem(STORAGE_LAST_AD_KEY, String(nextIndex));
+    } catch {
+      nextIndex = Math.random() < 0.5 ? 0 : 1;
+    }
+    setAdIndex(nextIndex);
 
     const interval = setInterval(() => {
       setTimeLeft(prev => {
@@ -70,6 +99,7 @@ export const AdVideoModal: React.FC<AdVideoModalProps> = ({
   if (!isOpen) return null;
 
   const progressPercent = Math.min(100, Math.round(((AD_DURATION - timeLeft) / AD_DURATION) * 100));
+  const ad = SPONSOR_ADS[adIndex] || SPONSOR_ADS[0];
 
   const handleClaimReward = () => {
     onAdCompleted();
@@ -94,61 +124,59 @@ export const AdVideoModal: React.FC<AdVideoModalProps> = ({
               広告
             </span>
             <span className="text-xs font-bold text-slate-300 flex items-center gap-1">
-              <Video className="w-3.5 h-3.5 text-amber-400" />
-              <span>スポンサー提供動画</span>
+              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+              <span>スポンサー提供広告</span>
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => setIsMuted(!isMuted)}
-              className="text-slate-400 hover:text-white transition-colors p-1"
-              title={isMuted ? 'ミュート解除' : '消音'}
-            >
-              {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4 text-slate-300" />}
-            </button>
-            <button
-              onClick={handleCancelClick}
-              className="text-slate-400 hover:text-rose-400 transition-colors p-1"
-              title="閉じる"
-            >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
+          <button
+            onClick={handleCancelClick}
+            className="text-slate-400 hover:text-rose-400 transition-colors p-1"
+            title="閉じる"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
 
-        {/* Video Area / Showcase Player */}
-        <div className="relative aspect-video bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 flex flex-col items-center justify-center p-6 overflow-hidden">
+        {/* Ad Display Area (A8.net Sponsor Banner with Alternating Rotation) */}
+        <div className="relative min-h-[230px] bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 flex flex-col items-center justify-center p-5 overflow-hidden">
           {/* Subtle background animated spotlight */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-500/10 via-indigo-500/5 to-transparent animate-pulse pointer-events-none" />
           
           {/* Grid lines decoration */}
           <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]" />
 
-          {/* Dynamic Video Simulation Content */}
-          <div className="relative z-10 text-center space-y-3 max-w-xs">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-tr from-amber-500 to-amber-300 text-slate-950 shadow-lg shadow-amber-500/20 mb-1">
-              <Play className="w-7 h-7 fill-current translate-x-0.5" />
+          {/* A8.net Affiliate Banner Link (Alternating 2 sponsors) */}
+          <div className="relative z-10 flex flex-col items-center justify-center text-center">
+            <div className="p-3 bg-slate-950/90 rounded-2xl border border-slate-700/80 shadow-2xl transition-transform hover:scale-105 flex items-center justify-center min-w-[200px] min-h-[200px]">
+              <a
+                href={ad.link}
+                rel="nofollow noopener noreferrer"
+                target="_blank"
+                className="flex items-center justify-center"
+              >
+                <img
+                  width={ad.width}
+                  height={ad.height}
+                  alt={ad.alt}
+                  src={ad.imageSrc}
+                  className="rounded-xl object-contain shadow-md mx-auto block border-0"
+                  style={{ maxWidth: '180px', maxHeight: '180px' }}
+                />
+              </a>
+              {/* A8.net Tracking Beacon */}
+              <img
+                key={ad.id}
+                width={1}
+                height={1}
+                src={ad.beaconSrc}
+                alt=""
+                className="opacity-0 pointer-events-none w-[1px] h-[1px] border-0"
+              />
             </div>
-
-            <div>
-              <span className="text-[10px] font-bold text-amber-400 tracking-wider uppercase block">
-                Official Game Partner
-              </span>
-              <h3 className="text-base font-black text-white tracking-wide">
-                激闘！パワフルベースボール
-              </h3>
-              <p className="text-[11px] text-slate-400 mt-1 leading-snug">
-                メジャーリーグ参戦＆最強球団育成シミュレーション
-              </p>
-            </div>
-
-            <div className="pt-2">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-900/80 border border-slate-700/80 text-[11px] text-amber-300 font-bold shadow-inner">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-spin" />
-                <span>動画視聴で10分待ち時間を完全スキップ！</span>
-              </div>
-            </div>
+            <p className="text-[10px] text-amber-300/90 mt-2.5 font-medium flex items-center justify-center gap-1">
+              <span>タップでスポンサーサイトを表示</span>
+            </p>
           </div>
 
           {/* Countdown Overlay Badge (Top Right) */}
@@ -156,7 +184,7 @@ export const AdVideoModal: React.FC<AdVideoModalProps> = ({
             {isCompleted ? (
               <span className="bg-emerald-500/90 text-white text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md">
                 <CheckCircle className="w-3.5 h-3.5" />
-                <span>視聴完了</span>
+                <span>閲覧完了</span>
               </span>
             ) : (
               <span className="bg-black/75 backdrop-blur-sm text-slate-200 text-[11px] font-mono px-2.5 py-1 rounded-full border border-slate-700 flex items-center gap-1.5 shadow-md">
@@ -166,7 +194,7 @@ export const AdVideoModal: React.FC<AdVideoModalProps> = ({
             )}
           </div>
 
-          {/* Progress Bar (Bottom of Video) */}
+          {/* Progress Bar (Bottom of Ad Area) */}
           <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-slate-800">
             <div
               className="h-full bg-gradient-to-r from-amber-500 via-amber-400 to-emerald-400 transition-all duration-300 ease-linear"
@@ -182,7 +210,7 @@ export const AdVideoModal: React.FC<AdVideoModalProps> = ({
               <div className="bg-emerald-950/60 border border-emerald-500/40 rounded-xl p-2.5 text-center">
                 <span className="text-xs font-bold text-emerald-300 flex items-center justify-center gap-1.5">
                   <CheckCircle className="w-4 h-4 text-emerald-400" />
-                  <span>動画視聴完了！待ち時間なしで試合を開始できます</span>
+                  <span>広告の確認が完了しました！待ち時間なしで試合を開始できます</span>
                 </span>
               </div>
               <button
@@ -201,11 +229,11 @@ export const AdVideoModal: React.FC<AdVideoModalProps> = ({
                 disabled={true}
                 className="w-full py-3 bg-slate-800/80 text-slate-400 font-bold text-xs rounded-xl cursor-not-allowed flex items-center justify-center gap-2 border border-slate-700/50"
               >
-                <Video className="w-3.5 h-3.5 text-slate-500 animate-pulse" />
-                <span>動画を再生中…（あと {timeLeft} 秒）</span>
+                <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-spin" />
+                <span>広告を確認中…（あと {timeLeft} 秒）</span>
               </button>
               <p className="text-[10px] text-center text-slate-500">
-                ※動画広告を最後まで視聴すると、通常10分のクールダウンなしで即座に試合を開始できます。
+                ※広告を閲覧すると、通常10分のクールダウンなしで即座に試合を開始できます。
               </p>
             </div>
           )}
@@ -215,9 +243,9 @@ export const AdVideoModal: React.FC<AdVideoModalProps> = ({
         {showCancelConfirm && !isCompleted && (
           <div className="absolute inset-0 bg-black/90 backdrop-blur-sm z-30 flex items-center justify-center p-4">
             <div className="bg-slate-900 border border-slate-700 rounded-xl p-4 text-center space-y-3 max-w-xs shadow-2xl">
-              <div className="text-amber-400 text-sm font-bold">動画視聴を中断しますか？</div>
+              <div className="text-amber-400 text-sm font-bold">広告閲覧を中断しますか？</div>
               <p className="text-xs text-slate-300 leading-relaxed">
-                動画を最後まで視聴しない場合、クールダウンは短縮されず試合は開始されません。
+                広告閲覧を途中で終了した場合、待ち時間は短縮されず試合は開始されません。
               </p>
               <div className="flex items-center gap-2 pt-1">
                 <button
@@ -225,7 +253,7 @@ export const AdVideoModal: React.FC<AdVideoModalProps> = ({
                   onClick={() => setShowCancelConfirm(false)}
                   className="flex-1 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs rounded-lg transition-colors"
                 >
-                  視聴を続ける
+                  閲覧を続ける
                 </button>
                 <button
                   type="button"

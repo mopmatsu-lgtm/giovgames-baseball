@@ -814,8 +814,8 @@ export const StadiumView: React.FC<Props> = ({ league, onUpdateLeague, onSelectP
                   disabled={isSimulating}
                   className="w-full py-3 bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 hover:from-emerald-500 hover:to-teal-400 text-white font-black text-xs rounded-xl shadow-lg hover:shadow-emerald-500/20 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 border border-emerald-400/50 game-btn group"
                 >
-                  <Video className="w-4 h-4 text-emerald-200 group-hover:scale-110 transition-transform" />
-                  <span>動画を見て今すぐ試合開始</span>
+                  <Sparkles className="w-4 h-4 text-emerald-200 group-hover:scale-110 transition-transform" />
+                  <span>広告を見て今すぐ試合開始</span>
                   <span className="text-[10px] bg-emerald-950/80 text-emerald-300 font-bold px-1.5 py-0.5 rounded border border-emerald-400/30">
                     待ち時間なし
                   </span>
