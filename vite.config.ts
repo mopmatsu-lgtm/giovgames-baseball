@@ -32,6 +32,14 @@ export default defineConfig(() => {
       },
     },
     build: {
+      // Build both the portal and the AI Studio game entry point. Without this,
+      // game.html is not copied into dist and production links fall back to index.html.
+      rollupOptions: {
+        input: {
+          main: path.resolve(__dirname, 'index.html'),
+          game: path.resolve(__dirname, 'game.html'),
+        },
+      },
       outDir: 'dist',
       assetsDir: 'assets',
       sourcemap: false,
