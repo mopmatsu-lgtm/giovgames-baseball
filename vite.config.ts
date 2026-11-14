@@ -7,6 +7,18 @@ import {defineConfig} from 'vite';
 import { fileURLToPath } from 'url';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
+const htmlPages = [
+  'index.html',
+  'game.html',
+  'about-game.html',
+  'guide.html',
+  'players.html',
+  'systems.html',
+  'faq.html',
+  'contact.html',
+  'privacy.html',
+  '404.html',
+];
 
 export default defineConfig(() => {
   return {
@@ -32,13 +44,12 @@ export default defineConfig(() => {
       },
     },
     build: {
-      // Build both the portal and the AI Studio game entry point. Without this,
-      // game.html is not copied into dist and production links fall back to index.html.
+      // Keep each information page directly accessible after deployment and
+      // retain the separate game entry point for the existing AI Studio app.
       rollupOptions: {
-        input: {
-          main: path.resolve(__dirname, 'index.html'),
-          game: path.resolve(__dirname, 'game.html'),
-        },
+        input: Object.fromEntries(
+          htmlPages.map((page) => [page.replace(/\.html$/, ''), path.resolve(__dirname, page)]),
+        ),
       },
       outDir: 'dist',
       assetsDir: 'assets',

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="giovgamesの運営者情報とお問い合わせ方法。サイトの運営者、ゲームに関する質問・不具合の連絡方法を掲載しています。"><title>運営情報・お問い合わせ｜giovgames</title><link rel="stylesheet" href="/info.css"></head>
+<body><header class="site-header"><div class="header-inner"><a class="brand" href="/">giovgames</a><nav class="site-nav"><a href="/">ゲームポータル</a><a href="/about-game.html">ゲーム紹介</a><a href="/privacy.html">プライバシー</a></nav></div></header>
+<main class="article-wrap"><nav class="breadcrumbs"><a href="/">ホーム</a> / 運営情報・お問い合わせ</nav><article class="article"><p class="eyebrow">OPERATOR & CONTACT</p><h1>運営情報・お問い合わせ</h1><p class="article-lead">giovgamesは、ブラウザゲームの紹介・公開を行う個人運営のサイトです。ゲームの仕様や掲載内容に関するご質問、ご意見、不具合報告を受け付けています。</p>
+<h2>運営者情報</h2><dl class="definition-list"><dt>運営者</dt><dd>Giovanni</dd><dt>サイト名</dt><dd>giovgames</dd><dt>サイトURL</dt><dd><a href="http://giovgames.com">http://giovgames.com</a></dd><dt>主な掲載内容</dt><dd>ブラウザゲームの紹介、遊び方・システムガイド、ゲーム内情報</dd></dl>
+<h2>お問い合わせ</h2><p>ゲームの不具合を報告する際は、発生した操作、画面に表示されたメッセージ、利用端末とブラウザを可能な範囲で記載してください。返信に必要な情報以外の個人情報、パスワード、認証情報は送信しないでください。</p>
+<form id="contact-form" class="contact-form">
+  <label for="nickname">ニックネーム</label><input id="nickname" name="nickname" type="text" maxlength="30" required autocomplete="nickname">
+  <label for="message">お問い合わせ内容</label><textarea id="message" name="message" rows="7" maxlength="1000" required></textarea>
+  <p class="form-note">送信内容はお問い合わせへの対応に使用します。詳しくは<a href="/privacy.html">プライバシーポリシー</a>をご確認ください。</p>
+  <button class="button primary" type="submit">お問い合わせを送信</button>
+  <p id="form-status" class="form-status" role="status" aria-live="polite"></p>
+</form>
+<h2>関連ページ</h2><p><a href="/privacy.html">プライバシーポリシー</a>では、Cookieやアクセス情報、広告に関する案内を掲載しています。</p></article></main>
+<footer class="site-footer"><div class="footer-inner"><p>© 2026 giovgames</p><nav><a href="/">ホーム</a><a href="/about-game.html">ゲーム紹介</a><a href="/guide.html">遊び方</a><a href="/players.html">選手・能力</a><a href="/systems.html">システム</a><a href="/faq.html">FAQ</a><a href="/privacy.html">プライバシー</a></nav></div></footer>
+<script>
+document.getElementById('contact-form').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const status = document.getElementById('form-status');
+  const button = form.querySelector('button[type="submit"]');
+  const data = new FormData(form);
+  status.textContent = '送信中です…';
+  button.disabled = true;
+  try {
+    const response = await fetch('/api/contact', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }, body: JSON.stringify({ nickname: data.get('nickname'), message: data.get('message') }) });
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error(result.error || '送信できませんでした。時間をおいて再度お試しください。');
+    status.textContent = 'お問い合わせを受け付けました。ありがとうございます。';
+    form.reset();
+  } catch (error) {
+    status.textContent = error instanceof Error ? error.message : '送信できませんでした。時間をおいて再度お試しください。';
+  } finally {
+    button.disabled = false;
+  }
+});
+</script></body></html>
