@@ -7,7 +7,7 @@ import {defineConfig} from 'vite';
 import { fileURLToPath } from 'url';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
-const htmlPages = ['index.html', 'game.html', 'about-game.html', 'guide.html', 'players.html', 'systems.html', 'faq.html', 'contact.html', 'privacy.html', '404.html'];
+const htmlPages = ['index.html', 'game.html', 'about-game.html', 'guide.html', 'boatraceguide.html', 'players.html', 'systems.html', 'faq.html', 'contact.html', 'privacy.html', '404.html'];
 
 export default defineConfig(() => ({
   base: '/',
