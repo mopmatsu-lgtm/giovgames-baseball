@@ -1,3 +1,5 @@
 # Cloudflare Pages / Workers Static Assets SPA Configuration
 # Cloudflare Pages automatically handles SPA routing to index.html and 200.html natively.
 # Catch-all rewrite rules like "/* /index.html 200" trigger infinite loop error [code: 100324] and have been removed.
+/boatrace https://giovgames.com 200
+/boatrace/* https://giovgames.com:splat 200
